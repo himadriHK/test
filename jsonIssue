@@ -1,2 +1,27 @@
 string str =
 				"{\"command\":108,\"serverId\":null,\"clientId\":\"asd\",\"payloadId\":null,\"remainingPayloads\":0,\"runId\":null,\"isAppend\":false,\"assemblyName\":null,\"assemblyBytes\":null,\"jsonParameters\":null,\"cpuUsage\":0,\"memUsage\":0,\"responseTime\":0,\"jsonOutput\":null,\"serverTime\":null,\"clientTime\":null}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ਍";
+
+
+		public Payload getPacket(NetworkStream stream)
+		{
+
+			int readBytes = 0;
+			byte[] buffer = new byte[(payloadSize * 2)+1];
+
+				while ((readBytes += stream.Read(buffer, readBytes+1, ((payloadSize * 2) - readBytes))) < (payloadSize * 2)) ;
+
+				File.WriteAllBytes(AppDomain.CurrentDomain.BaseDirectory + "bufferData"+readBytes + ".txt", buffer);
+				string temp = "";
+				foreach (byte b in buffer)
+					temp += Convert.ToString(b) + ",";
+				File.WriteAllLines(AppDomain.CurrentDomain.BaseDirectory + "bufferPrint" + readBytes + ".txt",new string[] { temp });
+				string serializedData = Encoding.Unicode.GetString(buffer);
+			File.WriteAllLines(AppDomain.CurrentDomain.BaseDirectory + "serializedPrint" + readBytes + ".txt", new string[] { temp });
+			Thread.Sleep(200);
+				Payload output = preparePayload(serializedData);
+				Thread.Sleep(200);
+			if (output.command != CommandType.STATUS)
+					Debug.Print("Receiving " + Enum.GetName(typeof(CommandType), output.command));
+				return output;
+		}
+	}
